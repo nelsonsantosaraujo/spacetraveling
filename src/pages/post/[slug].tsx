@@ -1,10 +1,11 @@
+import { useMemo } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { FiClock, FiUser, FiCalendar } from 'react-icons/fi';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
-import { FiClock, FiUser, FiCalendar } from 'react-icons/fi';
 import { RichText } from 'prismic-dom';
-import { useRouter } from 'next/router';
-import { useMemo } from 'react';
 import Prismic from '@prismicio/client';
 
 import Header from '../../components/Header';
@@ -63,6 +64,9 @@ export default function Post({ post }: PostProps): JSX.Element {
 
   return (
     <>
+      <Head>
+        <title>{post.data.title} | SpaceTraveling</title>
+      </Head>
       <Header />
 
       <main className={styles.container}>
