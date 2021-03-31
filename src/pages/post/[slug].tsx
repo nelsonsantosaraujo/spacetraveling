@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { FiClock, FiUser, FiCalendar } from 'react-icons/fi';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
@@ -34,10 +35,11 @@ interface Post {
 }
 
 interface PostProps {
+  preview: boolean;
   post: Post;
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+export default function Post({ preview, post }: PostProps): JSX.Element {
   const router = useRouter();
 
   const readTime = useMemo(() => {
@@ -108,6 +110,13 @@ export default function Post({ post }: PostProps): JSX.Element {
             </div>
           </article>
           <UtterancesComments />
+          {preview && (
+            <aside className={commonStyles.exitPreviewButton}>
+              <Link href="/api/exit-preview">
+                <a>Sair do modo Preview</a>
+              </Link>
+            </aside>
+          )}
         </section>
       </main>
     </>
@@ -119,7 +128,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const posts = await prismic.query(
     [Prismic.predicates.at('document.type', 'posts')],
     {
-      pageSize: 1,
+      pageSize: 2, // posts per page
     }
   );
 
@@ -133,13 +142,20 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async context => {
-  const { slug } = context.params;
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+  previewData,
+}) => {
+  const { slug } = params;
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('posts', String(slug), {});
+  const response = await prismic.getByUID('posts', String(slug), {
+    ref: previewData?.ref ?? null,
+  });
 
   return {
     props: {
+      preview,
       post: response,
     },
     revalidate: 60 * 5, // 5 minutes

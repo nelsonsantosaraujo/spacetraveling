@@ -29,10 +29,14 @@ interface PostPagination {
 }
 
 interface HomeProps {
+  preview: boolean;
   postsPagination: PostPagination;
 }
 
-export default function Home({ postsPagination }: HomeProps): JSX.Element {
+export default function Home({
+  preview,
+  postsPagination,
+}: HomeProps): JSX.Element {
   const [posts, setPosts] = useState<PostPagination>({
     ...postsPagination,
     results: postsPagination.results.map(post => ({
@@ -77,7 +81,9 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       <Head>
         <title>Home | SpaceTraveling</title>
       </Head>
+
       <Header />
+
       <main className={styles.container}>
         <section>
           {posts.results.map(post => (
@@ -100,23 +106,34 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
               </Link>
             </article>
           ))}
+          {posts.next_page && (
+            <button type="button" onClick={loadMorePosts}>
+              Carregar mais posts
+            </button>
+          )}
+          {preview && (
+            <aside className={commonStyles.exitPreviewButton}>
+              <Link href="/api/exit-preview">
+                <a>Sair do modo Preview</a>
+              </Link>
+            </aside>
+          )}
         </section>
-        {posts.next_page && (
-          <button type="button" onClick={loadMorePosts}>
-            Carregar mais posts
-          </button>
-        )}
       </main>
     </>
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async ({
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
   const postsResponse = await prismic.query(
     [Prismic.predicates.at('document.type', 'posts')],
     {
-      pageSize: 1,
+      pageSize: 2, // posts per page
+      ref: previewData?.ref ?? null,
     }
   );
 
@@ -128,6 +145,7 @@ export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
       postsPagination,
+      preview,
     },
     revalidate: 60 * 5, // 5 minutes
   };
