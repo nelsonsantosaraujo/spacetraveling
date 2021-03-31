@@ -87,3 +87,35 @@
     }
   }
 }
+
+.navigationController {
+  border-top: 1px solid rgba(215, 215, 215, 0.1);
+  padding-top: 4rem;
+  margin-bottom: 4rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  div {
+
+    h4 {
+      font-size: 1.125rem;
+      font-weight: 400;
+      word-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    span {
+      font-weight: 600;
+      word-spacing: -0.5px;
+      color: var(--pink);
+    }
+
+
+  }
+
+  div:last-child {
+    text-align: right;
+  }
+}
